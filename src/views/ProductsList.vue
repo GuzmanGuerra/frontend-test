@@ -7,9 +7,10 @@
     
     <div v-if="!loading && !error" class="products">
       <div v-for="product in products" :key="product.id">
+        <!--Modificamos el nombre de del evento en escucha para capturarlo correctamente -->
         <product-card 
-          v-bind:product="product"
-          v-on:product-favorite-clicked="toggleProductFavorite(products, product.id)"
+          :product="product"
+          @productFavoriteClicked="toggleProductFavorite"
         />
       </div>
     </div>
@@ -29,9 +30,8 @@ export default {
   created () {
     this.fetchProducts()
   },
-  mounted () {
-    this.fetchProducts()
-  },
+  //Se elimina el hook mounted ya que duplica la peticion de los productos
+  //Mantenemos la peticion en el hook created ya que se ejecuta primero en el lifecycle permitiendo optimizar los tiempos de carga mientras se carga el DOM
   data () {
     return {
       products: [], 
@@ -50,23 +50,18 @@ export default {
         this.loading = false
       }
     },
-    toggleProductFavorite (products, productSelectedId) {
-      var output = []
-      
-      for (var i = 0; i < products.length; i++) {
-        var productData = products[i]
-
-        output.push(function () {     
-          if (productData.id == String(productSelectedId)) { 
-            productData.favorite = true
-          }
-          
-          return productData
-        })
-      }
-
-      this.products = output
-      return output
+    // Simplificamos la funcion handler para modificar el estado del producto seleccionado
+    // permitiendo invertir el flag de favorite si es necesario
+    // También se modifican los parametros de entrada de la función aceptando solo el Id y el flag de Favorito  
+    toggleProductFavorite(productSelectedId, productFavoriteFlag) {      
+      this.products = this.products.map(product => { 
+        if (product.id === productSelectedId) {
+          product.favorite = productFavoriteFlag
+        }
+        return product
+      })
+      // Devolvemos una copia de la variable products
+      return [...this.products]
     }
   }
 }
