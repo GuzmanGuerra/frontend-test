@@ -1,6 +1,8 @@
 <template>
   <div class="product-item">
-    <span class="icono favorite"></span>
+    <!--No hay ninguna accion al clicar sobre el elemento -->
+    <!--Añadimos el evento click cuando se pulsa en el icono de favorito y tambien le asignamos la clase correspondiente si esta seleccionado  -->
+    <span class="icono favorite cursor-pointer" :class="{'selected': isSelected}" @click="onFavoriteClicked"></span>
     <img :src="product.image" :alt="product.title" class="product-image" />
     <h3 class="product-title">{{ product.title }}</h3>
     <p class="product-description">{{ product.description }}</p>
@@ -14,12 +16,16 @@ export default {
   props: ['product'],
   data () {
     return {
-
+      //Añadimos variable para determinar la clase 'selected' para el icono y poder establecer el producto como favorito en el component padre
+      isSelected: false
     }
   },
   methods: {
     onFavoriteClicked () {
-      this.$emit('productFavoriteClicked', this.product.id)
+      //Modificamos la variable isSelected para indicar que el articulo esta seleccionado
+      this.isSelected = !this.isSelected
+      //Enviamos la variable en el evento para saber si el producto está seleccionado 
+      this.$emit('productFavoriteClicked', this.product.id, this.isSelected)
     }
   }
 }
@@ -61,6 +67,7 @@ export default {
 
 .favorite {
   position: absolute;
+  cursor: pointer;
   right: 20px;
   width: 30px;
   height: 30px;
